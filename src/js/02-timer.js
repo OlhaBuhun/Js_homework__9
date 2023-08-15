@@ -1,6 +1,5 @@
 import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
-// console.log(flatpickr);
 
 
 
@@ -14,9 +13,7 @@ const refs = {
   dataSecondes : document.querySelector('[data-seconds]'),
 }
 
-// console.log(dataDay);
-refs.buttonStart.addEventListener('click', onStartTimer);
-refs.input.addEventListener('click', onInput);
+// refs.buttonStart.addEventListener('click', onStartTimer);
 
 
 
@@ -27,44 +24,43 @@ const options = {
   minuteIncrement: 1,
   onClose(selectedDates) {
     const selectedDate = selectedDates[0].getTime();
-    console.log(selectedDate);
     const currentData = Date.now();
-    console.log(currentData);
-
+    
     if(selectedDate < currentData){
+      refs.buttonStart.setAttribute('disabled', true);
       alert ("Please choose a date in the future") ;
     } else {
-      const timerId = setInterval(() => {
-        const currentTime = Date.now();
-            const deltaTime =  selectedDate - currentTime;
-            const { days, hours, minutes, seconds } = convertMs(deltaTime)
-            console.log(`${days}:${hours}:${minutes}:${seconds}`);
+      refs.buttonStart.removeAttribute('disabled');
+      refs.buttonStart.addEventListener('click', onStartTimer);
+
+      function onStartTimer() {
+        refs.buttonStart.setAttribute('disabled', true);
+
+        const timerId = setInterval(() => {
+          const currentTime = Date.now();       
+          const deltaTime =  selectedDate - currentTime;
+
+          if(deltaTime <= 0){
+            clearInterval(timerId);
+            console.log(timerId);
+            return;
+          }else{
+            const { days, hours, minutes, seconds } = convertMs(deltaTime);
+          // console.log(`${days}:${hours}:${minutes}:${seconds}`);
+          updateTimerFase({ days, hours, minutes, seconds });
+          }
            }, 1000)
-      
-        
+      }
+           
     }
     
   },
+ 
   
 };
 
 
-
 flatpickr(refs.input, options);
-console.dir(options.selectedDate);
-
-function onInput(evt) {
-
-  console.log(evt.target);
-  
-  
-
-}
-
-
-function onStartTimer() {
-  const currentData = Data.now();
-}
 
 function convertMs(ms) {
   // Number of milliseconds per unit of time
@@ -74,13 +70,25 @@ function convertMs(ms) {
   const day = hour * 24;
 
   // Remaining days
-  const days = Math.floor(ms / day);
+  const days = addLeadingZero(Math.floor(ms / day));
   // Remaining hours
-  const hours = Math.floor((ms % day) / hour);
+  const hours = addLeadingZero(Math.floor((ms % day) / hour));
   // Remaining minutes
-  const minutes = Math.floor(((ms % day) % hour) / minute);
+  const minutes = addLeadingZero(Math.floor(((ms % day) % hour) / minute));
   // Remaining seconds
-  const seconds = Math.floor((((ms % day) % hour) % minute) / second);
+  const seconds = addLeadingZero(Math.floor((((ms % day) % hour) % minute) / second));
 
   return { days, hours, minutes, seconds };
+}
+
+function addLeadingZero(value) {
+  return String(value).padStart(2, '0');
+}
+
+function updateTimerFase({days, hours, minutes, seconds}) {
+  refs.dataDay.textContent = `${days}`;
+  refs.dataHours.textContent = `${hours}`;
+  refs.dataMinutes.textContent = `${minutes}`;
+  refs.dataSecondes.textContent = `${seconds}`;
+
 }
