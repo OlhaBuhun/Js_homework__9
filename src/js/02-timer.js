@@ -13,7 +13,6 @@ const refs = {
   dataSecondes : document.querySelector('[data-seconds]'),
 }
 
-// refs.buttonStart.addEventListener('click', onStartTimer);
 
 
 
